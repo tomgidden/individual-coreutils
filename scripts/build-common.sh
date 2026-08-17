@@ -28,6 +28,29 @@ build_utils_from_configured_source() {
   mkdir -p "$out_dir"
 
   cd "$src_dir"
+
+  # `src/<name>` targets don't declare BUILT_SOURCES (generated headers
+  # like configmake.h, version.h) as make-tracked prerequisites -- only
+  # the top-level `all` target does (`all: $(BUILT_SOURCES)`). Building
+  # a single program target directly, as we do below, fails on a
+  # from-scratch tree with "configmake.h file not found" unless we
+  # generate those headers first ourselves. There's no target named
+  # literally $(BUILT_SOURCES); we get make to expand the variable by
+  # including the real Makefile into a throwaway one with a print rule,
+  # then pass the expanded (space-separated) list back to make as
+  # actual targets.
+  echo "==> Generating build headers"
+  local print_mk built_sources
+  print_mk="$(mktemp)"
+  cat > "$print_mk" <<'MAKEFRAG'
+include Makefile
+print-%:
+	@echo '$($*)'
+MAKEFRAG
+  built_sources="$(make -f "$print_mk" print-BUILT_SOURCES)"
+  rm -f "$print_mk"
+  make $built_sources
+
   for u in "${utils[@]}"; do
     echo "==> Building $u"
     make "src/$u"
