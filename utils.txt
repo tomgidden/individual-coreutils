@@ -1,0 +1,21 @@
+# GNU coreutils utilities built by this project.
+#
+# These are the coreutils programs with no equivalent already shipped by
+# stock macOS (checked against macOS 26 -- BSD userland + Apple's own
+# tools). Everything else in coreutils already has a working macOS
+# counterpart (ls, cp, mv, chmod, date, ...) so building/shipping those
+# would just create confusing near-duplicates with subtly different
+# behaviour. If you want the full GNU set with "g" prefixes anyway
+# (gls, gsed, etc), that's what `brew install coreutils` is for.
+#
+# One line per utility, comments with '#' allowed.
+
+timeout
+nproc
+shuf
+tac
+numfmt
+b2sum
+shred
+basenc
+base32
