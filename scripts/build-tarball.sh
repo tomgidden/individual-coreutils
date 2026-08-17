@@ -79,7 +79,22 @@ tar xf "$TARBALL"
 
 cd "$SRC_DIR"
 echo "==> Configuring (--disable-nls: see README for why)"
-./configure --disable-nls --disable-year2038 >/dev/null
+# --without-libgmp etc: some optional deps get opportunistically
+# detected and linked if present on the build machine (e.g. a CI
+# runner or dev machine with Homebrew's gmp installed) even though
+# they're not part of the base OS -- that would silently break the
+# "system libraries only" property this project promises. Force them
+# off explicitly rather than relying on the build machine not having
+# them installed. --without-selinux/--disable-libcap are Linux-only
+# features anyway; harmless to disable on macOS.
+./configure \
+  --disable-nls \
+  --disable-year2038 \
+  --without-libgmp \
+  --without-selinux \
+  --disable-libcap \
+  --disable-xattr \
+  >/dev/null
 
 build_utils_from_configured_source "$SRC_DIR" "$OUT_DIR" "$ROOT_DIR" "$@"
 

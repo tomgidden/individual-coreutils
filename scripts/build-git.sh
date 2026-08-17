@@ -45,7 +45,16 @@ if [[ ! -f configure ]]; then
 fi
 
 echo "==> Configuring (--disable-nls: see README for why)"
-./configure --disable-nls --disable-year2038 >/dev/null
+# See build-tarball.sh for why the --without/--disable set below --
+# keep the two scripts' configure flags in sync.
+./configure \
+  --disable-nls \
+  --disable-year2038 \
+  --without-libgmp \
+  --without-selinux \
+  --disable-libcap \
+  --disable-xattr \
+  >/dev/null
 
 build_utils_from_configured_source "$SRC_DIR" "$OUT_DIR" "$ROOT_DIR" "$@"
 
