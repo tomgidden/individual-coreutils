@@ -36,10 +36,15 @@ Extract it and run:
 This installs `gtimeout` (etc) into `~/.local/bin`. If nothing on your
 system already provides a plain `timeout` command, it also symlinks
 `timeout -> gtimeout`. See the per-package README inside the archive
-for details, and `--prefix`/`--no-plain` options.
+for details, and `--prefix`/`--no-plain`/`--uninstall` options.
+
+Binaries aren't code-signed or notarized, so macOS may quarantine and
+block them if you downloaded via a browser -- pass `--quarantine` to
+`install.sh` to clear that, or see the per-package README.
 
 Prefer Homebrew? See
-[homebrew-individual-coreutils](https://github.com/tomgidden/homebrew-individual-coreutils).
+[homebrew-individual-coreutils](https://github.com/tomgidden/homebrew-individual-coreutils)
+(you'll also need `brew trust` -- see that repo's README).
 
 ## Why "g" prefixed?
 

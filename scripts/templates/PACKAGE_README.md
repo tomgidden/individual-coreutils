@@ -17,6 +17,27 @@ For a system-wide install instead:
 
     sudo ./install.sh --prefix /usr/local/bin
 
+To remove what this script installed:
+
+    ./install.sh --uninstall
+
+## Gatekeeper / quarantine
+
+This binary isn't code-signed or notarized (that needs a paid Apple
+Developer account this project doesn't have). If you downloaded this
+archive via a browser or another tool that sets macOS's quarantine
+flag, running g{{UTIL}} will be blocked with "Apple could not verify
+'g{{UTIL}}' is free of malware...".
+
+`install.sh` won't clear this automatically -- that's your call, not
+something a script should silently decide for you. Either:
+
+    ./install.sh --quarantine
+
+or clear it yourself and re-run install normally:
+
+    xattr -dr com.apple.quarantine .
+
 ## Manual install
 
 If you'd rather not run the script:
