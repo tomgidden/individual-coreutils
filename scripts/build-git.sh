@@ -54,6 +54,7 @@ echo "==> Configuring (--disable-nls: see README for why)"
   --without-selinux \
   --disable-libcap \
   --disable-xattr \
+  --with-openssl=no \
   >/dev/null
 
 build_utils_from_configured_source "$SRC_DIR" "$OUT_DIR" "$ROOT_DIR" "$@"

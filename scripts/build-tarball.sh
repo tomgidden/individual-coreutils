@@ -86,7 +86,14 @@ echo "==> Configuring (--disable-nls: see README for why)"
 # "system libraries only" property this project promises. Force them
 # off explicitly rather than relying on the build machine not having
 # them installed. --without-selinux/--disable-libcap are Linux-only
-# features anyway; harmless to disable on macOS.
+# features anyway; harmless to disable on macOS. --with-openssl=no
+# was added after CI caught cksum dynamically linking a Homebrew-
+# installed openssl@3 on the x86_64 runner (arm64 didn't have it on
+# its default search path, so this only failed on Intel) -- coreutils'
+# hash utilities (md5sum, sha*sum, cksum, ...) opportunistically use
+# libcrypto for speed if configure finds it, same class of problem as
+# libgmp above. This forces gnulib's bundled fallback implementation
+# instead.
 ./configure \
   --disable-nls \
   --disable-year2038 \
@@ -94,6 +101,7 @@ echo "==> Configuring (--disable-nls: see README for why)"
   --without-selinux \
   --disable-libcap \
   --disable-xattr \
+  --with-openssl=no \
   >/dev/null
 
 build_utils_from_configured_source "$SRC_DIR" "$OUT_DIR" "$ROOT_DIR" "$@"
