@@ -23,9 +23,18 @@ source "$SCRIPT_DIR/build-common.sh"
 BUILD_DIR="${ROOT_DIR}/.build-tarball"
 OUT_DIR="${ROOT_DIR}/out"
 
+# --connect-timeout/--max-time: a run of this same code in
+# homebrew-individual-coreutils' copy hung for ~1h45m on a stalled
+# ftp.gnu.org connection (no read timeout = bounded only by CI's
+# multi-hour job limit, not anything sane) before falling through to
+# the keyserver path, which then failed too -- see GNUPGHOME below.
+# Retry a couple of times rather than failing the whole build on one
+# transient stall, since these are plain unauthenticated downloads.
+CURL_OPTS=(--connect-timeout 15 --max-time 120 --retry 2 --retry-delay 5)
+
 # Resolve latest release version from the GNU FTP directory listing.
 echo "==> Resolving latest coreutils release"
-latest_line="$(curl -sSL https://ftp.gnu.org/gnu/coreutils/ \
+latest_line="$(curl -sSL "${CURL_OPTS[@]}" https://ftp.gnu.org/gnu/coreutils/ \
   | grep -o 'coreutils-[0-9][0-9.]*\.tar\.xz"' \
   | sed 's/"$//' | sort -V | tail -1)"
 CU_VERSION="$(echo "$latest_line" | sed -E 's/coreutils-([0-9.]+)\.tar\.xz/\1/')"
@@ -36,20 +45,25 @@ mkdir -p "$BUILD_DIR"
 cd "$BUILD_DIR"
 
 echo "==> Downloading $TARBALL and its signature"
-curl -sSL -o "$TARBALL" "https://ftp.gnu.org/gnu/coreutils/$TARBALL"
-curl -sSL -o "$TARBALL.sig" "https://ftp.gnu.org/gnu/coreutils/$TARBALL.sig"
+curl -sSL "${CURL_OPTS[@]}" -o "$TARBALL" "https://ftp.gnu.org/gnu/coreutils/$TARBALL"
+curl -sSL "${CURL_OPTS[@]}" -o "$TARBALL.sig" "https://ftp.gnu.org/gnu/coreutils/$TARBALL.sig"
 
 if command -v gpg &>/dev/null; then
   echo "==> Verifying GPG signature (key $RELEASE_KEY_FPR)"
-  export GNUPGHOME="$BUILD_DIR/.gnupg"
-  rm -rf "$GNUPGHOME"
-  mkdir -m 700 "$GNUPGHOME"
+  # A GNUPGHOME nested under the repo checkout can exceed the ~104-byte
+  # limit on a Unix domain socket path on some runners (dirmngr's IPC
+  # socket lives under GNUPGHOME) -- seen as "gpg: can't connect to the
+  # dirmngr: File name too long" on a macos-15-intel runner, whose
+  # workspace path (/Users/runner/work/<repo>/<repo>/...) is long
+  # enough to trip it. Use a short mktemp -d path instead.
+  export GNUPGHOME="$(mktemp -d /tmp/gnupghome.XXXXXX)"
+  chmod 700 "$GNUPGHOME"
 
   # Prefer GNU's own published keyring (authoritative, no keyserver
   # flakiness) and only fall back to a public keyserver if that fetch
   # fails for some reason.
   echo "==> Fetching GNU keyring"
-  curl -sSL -o "$BUILD_DIR/gnu-keyring.gpg" https://ftp.gnu.org/gnu/gnu-keyring.gpg
+  curl -sSL "${CURL_OPTS[@]}" -o "$BUILD_DIR/gnu-keyring.gpg" https://ftp.gnu.org/gnu/gnu-keyring.gpg
   if gpg --batch --quiet --import "$BUILD_DIR/gnu-keyring.gpg" 2>/dev/null \
       && gpg --batch --with-colons --fingerprint "$RELEASE_KEY_FPR" &>/dev/null; then
     :
