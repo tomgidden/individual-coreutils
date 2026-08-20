@@ -1,26 +1,23 @@
 # individual-coreutils
 
-Standalone builds of the handful of GNU coreutils utilities that macOS
-doesn't already ship an equivalent of, without installing all of
-coreutils, without a package manager, and without runtime dependencies
-beyond the system libc.
+Standalone builds of GNU coreutils utilities for macOS, one binary (or
+`.tar.gz`) per utility, without installing all of coreutils in one go,
+without a package manager, and without runtime dependencies beyond the
+system libc.
 
 ## Why
 
-macOS ships a full BSD/Apple userland (`ls`, `cp`, `date`, `chmod`, ...)
-that already covers almost all of GNU coreutils. The usual way to get
-the handful of genuinely missing tools (`timeout`, `shuf`, `nproc`, ...)
-is `brew install coreutils`, which builds and installs the *entire*
-GNU suite -- ~100 binaries, most of them duplicates of tools you
-already have, prefixed with `g` so they don't collide.
+The usual way to get GNU coreutils on macOS is `brew install coreutils`,
+which builds and installs the *entire* suite as one unit, prefixed with
+`g` so it doesn't collide with the BSD/Apple tools macOS already ships
+(`ls`, `cp`, `date`, `chmod`, ...). That's fine if you want everything,
+but it's an all-or-nothing install, and Homebrew itself as a dependency.
 
-This project builds only the utilities that fill a real gap:
-
-```
-timeout   nproc   shuf   tac   numfmt   b2sum   shred   basenc   base32
-```
-
-See [`utils.txt`](utils.txt) for the current list and rationale.
+This project builds the same ~105 utilities individually -- grab just
+`gtimeout`, or just `gshuf`, as its own small download with no package
+manager and no other coreutils binaries along for the ride. See
+[`utils.txt`](utils.txt) for the current list and rationale (including
+the couple of utilities that don't build on macOS at all).
 
 ## Install
 

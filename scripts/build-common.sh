@@ -53,10 +53,21 @@ MAKEFRAG
 
   for u in "${utils[@]}"; do
     echo "==> Building $u"
-    make "src/$u"
+
+    # coreutils builds `install` as the make target `ginstall` (its
+    # local.mk avoids a name clash with make's own `install` target,
+    # then transforms the name back to `install` at real `make install`
+    # time). We package it under `install` -- matching its man page and
+    # what every other utility here is named -- but must build the
+    # `ginstall` target, since `make src/install` isn't a real rule and
+    # silently falls through to make's implicit C-compile rule instead
+    # (missing -DHAVE_CONFIG_H etc, so it fails on `config.h`).
+    local build_target="$u"
+    [[ "$u" == "install" ]] && build_target="ginstall"
+    make "src/$build_target"
 
     mkdir -p "$out_dir/$u/bin" "$out_dir/$u/share/man/man1"
-    cp "src/$u" "$out_dir/$u/bin/$u"
+    cp "src/$build_target" "$out_dir/$u/bin/$u"
 
     if [[ -f "man/$u.1" ]]; then
       cp "man/$u.1" "$out_dir/$u/share/man/man1/$u.1"

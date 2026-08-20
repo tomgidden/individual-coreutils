@@ -1,38 +1,28 @@
 # individual-coreutils
 
-Standalone builds of the handful of GNU coreutils utilities that macOS
-doesn't already ship an equivalent of, without installing all of
-coreutils, without a package manager, and without runtime dependencies
-beyond the system libc.
+Standalone builds of GNU coreutils utilities for macOS, one binary (or
+`.tar.gz`) per utility, without installing all of coreutils in one go,
+without a package manager, and without runtime dependencies beyond the
+system libc.
 
 ## Why
 
-macOS ships a full BSD/Apple userland (`ls`, `cp`, `date`, `chmod`, ...)
-that already covers almost all of GNU coreutils. The usual way to get
-the handful of genuinely missing tools (`timeout`, `shuf`, `nproc`, ...)
-is `brew install coreutils`, which builds and installs the *entire*
-GNU suite -- around 100 binaries, most of them duplicates of tools you
-already have, prefixed with `g` so they don't collide.
+The usual way to get GNU coreutils on macOS is `brew install coreutils`,
+which builds and installs the *entire* suite as one unit, prefixed with
+`g` so it doesn't collide with the BSD/Apple tools macOS already ships
+(`ls`, `cp`, `date`, `chmod`, ...). That's fine if you want everything,
+but it's an all-or-nothing install, and Homebrew itself as a dependency.
 
-This project builds only the utilities that fill a real gap. Each has
-its own page with usage details and download links:
-
-- [timeout](/timeout) -- run a command with a time limit
-- [nproc](/nproc) -- print the number of available processors
-- [shuf](/shuf) -- generate random permutations
-- [tac](/tac) -- concatenate and print files in reverse
-- [numfmt](/numfmt) -- reformat numbers
-- [b2sum](/b2sum) -- BLAKE2 checksums
-- [shred](/shred) -- overwrite a file to hide its contents
-- [basenc](/basenc) -- base64/base32/base16/etc encode/decode
-- [base32](/base32) -- base32 encode/decode
+This project builds the same ~105 utilities individually. Each has its
+own page with usage details and download links -- see
+[`utils.txt`](https://github.com/tomgidden/individual-coreutils/blob/main/utils.txt)
+in the repo for the current list and rationale (including the couple
+of utilities that don't build on macOS at all), or grab any of them
+directly from the [Releases page](https://github.com/tomgidden/individual-coreutils/releases).
 
 (Installed binary is `g<name>`, e.g. `gtimeout` -- see
 [Why "g" prefixed?](#why-g-prefixed) below for when the plain name is
 also available.)
-
-See [`utils.txt`](https://github.com/tomgidden/individual-coreutils/blob/main/utils.txt)
-in the repo for the current list and rationale.
 
 ## Install
 
